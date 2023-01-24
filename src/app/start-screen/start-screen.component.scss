@@ -1,0 +1,50 @@
+.start-screen {
+  background-color: black;
+  height: 100vh;
+  width: 100vw;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+
+  img {
+    width: inherit;
+    height: 50%;
+    object-fit: contain;
+    object-position: top;
+  }
+}
+
+.start-label-container {
+  position: absolute;
+  right: 0;
+  left: 0;
+  bottom: 150px;
+  display: flex;
+  justify-content: center;
+}
+
+.start-label {
+  height: 100px;
+  width: 40vw;
+  background-color: rgb(177, 177, 177);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+  font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+    "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+  --b: 8px; /* the border thickness*/
+  --g: 14px; /* the gap */
+  --c: rgb(255, 255, 255); /* the color */
+  outline: calc(var(--s) / 2) solid #0009;
+  outline-offset: calc(var(--s) / -2);
+  cursor: pointer;
+  transition: 0.3s;
+
+  &:hover {
+    outline: var(--b) solid var(--c);
+    outline-offset: var(--g);
+    background-color: rgb(209, 138, 50);
+    border-radius: 10px;
+  }
+}

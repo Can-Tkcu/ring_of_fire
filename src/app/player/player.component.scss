@@ -1,0 +1,33 @@
+
+
+.player-container {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    max-width: 150px;
+    min-width: 150px;
+
+    span {
+        font-size: 24px;
+        font-weight: 800;
+        font-family: 'Courier New', Courier, monospace;
+        color:wheat;
+    }
+
+    img {
+        height: 75px;
+        width: 75px;
+        object-fit: cover;
+        border-radius: 50%;
+        background-color: rgb(25, 88, 51)
+    }
+}
+
+.player-active {
+    filter: brightness(2);
+}
