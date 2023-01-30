@@ -2,10 +2,18 @@
   <app-player
     *ngFor="let player of game.players; let i = index"
     [ngStyle]="{ 'top.px': 0 + i * 150 }"
-    class="player-position"
+    class="player-position hide-desktop"
     [playerActive]="i == game.currentPlayer"
     [name]="player"
   ></app-player>
+  
+  <app-player-mobile
+    *ngFor="let player of game.players; let i = index"
+    [ngStyle]="{ 'left.px': 70 + i * 70 }"
+    class="player-position hide-mobile"
+    [playerActive]="i == game.currentPlayer"
+    [name]="player"
+  ></app-player-mobile>
 </div>
 
 <div class="table">
