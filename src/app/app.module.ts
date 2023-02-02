@@ -23,6 +23,7 @@ import { provideDatabase, getDatabase } from '@angular/fire/database';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { PlayerMobileComponent } from './player-mobile/player-mobile.component';
 import { DialogEditPlayerComponent } from './dialog-edit-player/dialog-edit-player.component';
+import { BackendServiceFB } from './backend-service.service';
 
 @NgModule({
   declarations: [

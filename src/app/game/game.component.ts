@@ -1,22 +1,10 @@
-import { Component, OnInit, Inject } from '@angular/core';
-import { Firestore, collectionData, docData } from '@angular/fire/firestore';
-import {
-  CollectionReference,
-  DocumentData,
-  collection,
-  addDoc,
-  deleteDoc,
-  doc,
-  updateDoc,
-} from '@firebase/firestore';
-
+import { Component, OnInit } from '@angular/core';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
-import { Game } from 'src/models/game';
 import { ActivatedRoute } from '@angular/router';
 import { DialogAddPlayerComponent } from '../dialog-add-player/dialog-add-player.component';
 import { DialogEditPlayerComponent } from '../dialog-edit-player/dialog-edit-player.component';
+import { BackendServiceFB } from '../backend-service.service';
 
 @Component({
   selector: 'app-game',
@@ -27,96 +15,112 @@ import { DialogEditPlayerComponent } from '../dialog-edit-player/dialog-edit-pla
   providedIn: 'root',
 })
 export class GameComponent implements OnInit {
-  game: Game = new Game();
-  gameID: string;
-
-  public gameCollection: CollectionReference<DocumentData>;
-
   constructor(
     private route: ActivatedRoute,
-    public dialog: MatDialog,
-    private readonly firestore: Firestore
-  ) {
-    this.gameCollection = collection(this.firestore, 'game');
-  }
+    private dialog: MatDialog,
+    public readonly backend: BackendServiceFB
+  ) {}
 
+
+  /**
+   * @description This method is called when the component is initialized.
+   * It subscribes to the route parameters and retrieves the value of the 'lobby' param which is the ID of the firebase doc.
+   * It then calls the `get` method.
+   */
   ngOnInit(): void {
-    // this.newGame();
     this.route.params.subscribe((params) => {
-      this.gameID = params['lobby'];
-      this.get();
+      this.backend.gameID = params['lobby'];
+      this.backend.get();
     });
   }
 
+
+  /**
+ * @description This method opens a dialog using the DialogAddPlayerComponent.
+ * It subscribes to the `afterClosed` event of the dialog and pushes the input name to the players array in the backend.
+ * It then calls the `updateGame` method.
+ */
   openDialog(): void {
     const dialogRef = this.dialog.open(DialogAddPlayerComponent, {});
 
     dialogRef.afterClosed().subscribe((name: string) => {
       if (name)
-        this.game.players.push(
-          name.replace('<', '&gt').trim().replace('>', '&lt')
+        this.backend.game.players.push(
+          this.sanitizeInput(name)
         );
-      this.updateGame();
+      this.backend.updateGame();
     });
   }
 
-  editPlayer(ID: number) {
+
+  /**
+ * @param {string} name - The input string that needs to be encoded.
+ * @returns {string} The encoded string with characters like '&', '<', and '"' replaced with HTML entities.
+ */
+  sanitizeInput(name: string) {
+    return name.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;').replace(/\s/g, "").trim()
+  }
+
+
+  /**
+ * @param {number} ID - The index of the player in the players array.
+ * @description This method opens a dialog using the DialogEditPlayerComponent.
+ * It subscribes to the `afterClosed` event of the dialog and removes the player from the players array if the user confirms the delete action.
+ * It then calls the `updateGame` method.
+ */
+  deletePlayer(ID: number) {
     const dialogRef = this.dialog.open(DialogEditPlayerComponent, {});
     dialogRef.afterClosed().subscribe((change: string) => {
-      if (change == 'DELETE') this.game.players.splice(ID, 1);
-      this.updateGame();
+      if (change == 'DELETE') this.backend.game.players.splice(ID, 1);
+      this.backend.updateGame();
     });
   }
 
-  takeCard() {
-    if (!this.game.pickCardAnimation) {
-      this.game.currentCard = this.game.stack.pop()!;
-      this.updateGame();
-      this.game.pickCardAnimation = true;
-      this.game.currentPlayer++;
-      this.game.currentPlayer =
-        this.game.currentPlayer % this.game.players.length;
-      this.updateGame();
 
-      setTimeout(() => {
-        this.game.playedCards.push(this.game.currentCard);
-        this.game.pickCardAnimation = false;
-        this.updateGame();
-      }, 1500);
+  /**
+ * @description This method takes a card from the stack of cards and adds it to the current card.
+ * It updates the current player and adds the current card to the played cards after a timeout of 1500ms.
+ */
+  takeCard() {
+    if (!this.backend.game.pickCardAnimation) {
+      this.setCurrentCard();
+      this.nextPlayer();
+      this.updateCardStack();
     }
   }
 
-  /**
-   *
-   * @returns A collection of all game instances
-   */
-  getAll() {
-    return collectionData(this.gameCollection).subscribe((game) => {
-      console.log('Game update', game);
-    });
-  }
 
   /**
-   *
-   * @param id - Game instance id. Referrences the document id in the firestore database
-   * @returns
+   * pushes currentCard to playedCards array and toggles off the animation Using the 
+   * updateGame() method transmitts the data to the backend.
    */
-  get() {
-    const gameDocumentReference = doc(this.firestore, 'game', this.gameID);
-
-    //syncs game with database
-    return docData(gameDocumentReference).subscribe((game: any) => {
-      this.game.currentPlayer = game.currentPlayer;
-      this.game.playedCards = game.playedCards;
-      this.game.stack = game.stack;
-      this.game.players = game.players;
-      this.game.currentCard = game.currentCard;
-      this.game.pickCardAnimation = game.pickCardAnimation;
-    });
+  updateCardStack() {
+    setTimeout(() => {
+      this.backend.game.playedCards.push(this.backend.game.currentCard);
+      this.backend.game.pickCardAnimation = false;
+      this.backend.updateGame();
+    }, 1500);
   }
 
-  updateGame() {
-    const gameDocumentReference = doc(this.firestore, 'game', this.gameID);
-    return updateDoc(gameDocumentReference, this.game.toJson());
+
+  /**
+   * plays pickCardAnimation anim updates the currentPlayer using the Modulo Operator. Using the 
+   * updateGame() method transmitts the data to the backend.
+   */
+  nextPlayer() {
+      this.backend.game.pickCardAnimation = true;
+      this.backend.game.currentPlayer++;
+      this.backend.game.currentPlayer =
+      this.backend.game.currentPlayer % this.backend.game.players.length;
+      this.backend.updateGame();
+  }
+
+
+  /**
+   * sets the currentCard by using the pop() method to retrieve the last card in the stack array
+   */
+  setCurrentCard() {
+    this.backend.game.currentCard = this.backend.game.stack.pop()!;
+    this.backend.updateGame();
   }
 }

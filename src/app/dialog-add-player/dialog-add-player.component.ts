@@ -11,6 +11,11 @@ export class DialogAddPlayerComponent {
 
   constructor(public dialogRef: MatDialogRef<DialogAddPlayerComponent>) {}
 
+  /** Closes the dialog window.
+  @function
+  @name onNoClick
+  @returns {void}
+  */
   onNoClick(): void {
     this.dialogRef.close();
   }
