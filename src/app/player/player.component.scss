@@ -1,9 +1,6 @@
 
 
 .player-container {
-    position: absolute;
-    top: 0;
-    right: 0;
     padding: 25px;
     display: flex;
     flex-direction: column;
@@ -12,6 +9,7 @@
     max-width: 150px;
     min-width: 150px;
     z-index: 1;
+    gap: 5px;
 
     span {
         font-size: 24px;
@@ -25,7 +23,12 @@
         width: 75px;
         object-fit: cover;
         border-radius: 50%;
-        background-color: rgb(25, 88, 51)
+        background-color: rgb(25, 88, 51);
+        cursor: pointer;
+        &:hover {
+            filter: brightness(1.6);
+            scale: 1.1;
+        }
     }
 }
 

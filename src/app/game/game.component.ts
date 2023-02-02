@@ -14,35 +14,32 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { Game } from 'src/models/game';
-import { DialogAddPlayerComponent } from '../dialog-add-player/dialog-add-player.component';
 import { ActivatedRoute } from '@angular/router';
+import { DialogAddPlayerComponent } from '../dialog-add-player/dialog-add-player.component';
+import { DialogEditPlayerComponent } from '../dialog-edit-player/dialog-edit-player.component';
 
 @Component({
   selector: 'app-game',
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.scss'],
 })
-
 @Injectable({
   providedIn: 'root',
 })
-
 export class GameComponent implements OnInit {
   game: Game = new Game();
   gameID: string;
 
   public gameCollection: CollectionReference<DocumentData>;
-  
-  constructor(private route: ActivatedRoute, public dialog: MatDialog, private readonly firestore: Firestore) {
+
+  constructor(
+    private route: ActivatedRoute,
+    public dialog: MatDialog,
+    private readonly firestore: Firestore
+  ) {
     this.gameCollection = collection(this.firestore, 'game');
   }
 
-
-  // newGame() {
-  //   this.game = new Game();
-  // }
-
-  
   ngOnInit(): void {
     // this.newGame();
     this.route.params.subscribe((params) => {
@@ -51,19 +48,25 @@ export class GameComponent implements OnInit {
     });
   }
 
-
   openDialog(): void {
     const dialogRef = this.dialog.open(DialogAddPlayerComponent, {});
 
     dialogRef.afterClosed().subscribe((name: string) => {
-      if (name) 
+      if (name)
         this.game.players.push(
           name.replace('<', '&gt').trim().replace('>', '&lt')
         );
-        this.updateGame();
+      this.updateGame();
     });
   }
 
+  editPlayer(ID: number) {
+    const dialogRef = this.dialog.open(DialogEditPlayerComponent, {});
+    dialogRef.afterClosed().subscribe((change: string) => {
+      if (change == 'DELETE') this.game.players.splice(ID, 1);
+      this.updateGame();
+    });
+  }
 
   takeCard() {
     if (!this.game.pickCardAnimation) {
@@ -71,9 +74,10 @@ export class GameComponent implements OnInit {
       this.updateGame();
       this.game.pickCardAnimation = true;
       this.game.currentPlayer++;
-      this.game.currentPlayer = this.game.currentPlayer % this.game.players.length;
+      this.game.currentPlayer =
+        this.game.currentPlayer % this.game.players.length;
       this.updateGame();
-        
+
       setTimeout(() => {
         this.game.playedCards.push(this.game.currentCard);
         this.game.pickCardAnimation = false;
@@ -81,7 +85,6 @@ export class GameComponent implements OnInit {
       }, 1500);
     }
   }
-
 
   /**
    *
@@ -93,16 +96,15 @@ export class GameComponent implements OnInit {
     });
   }
 
-
   /**
    *
-   * @param id - Game instance id. Referrences the Dokument id in the firestore database
+   * @param id - Game instance id. Referrences the document id in the firestore database
    * @returns
    */
   get() {
     const gameDocumentReference = doc(this.firestore, 'game', this.gameID);
 
-    //syncs game with database 
+    //syncs game with database
     return docData(gameDocumentReference).subscribe((game: any) => {
       this.game.currentPlayer = game.currentPlayer;
       this.game.playedCards = game.playedCards;
@@ -113,10 +115,8 @@ export class GameComponent implements OnInit {
     });
   }
 
-
   updateGame() {
-    const gameDocumentReference = doc(this.firestore, 'game', this.gameID)
-      
+    const gameDocumentReference = doc(this.firestore, 'game', this.gameID);
     return updateDoc(gameDocumentReference, this.game.toJson());
   }
 }

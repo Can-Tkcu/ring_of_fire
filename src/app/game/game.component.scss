@@ -49,9 +49,6 @@
 }
 
 .player-position {
-  position: absolute;
-  right: 0;
-
   @media (max-width: 960px) {
     left: 10px;
     right: unset;
@@ -110,8 +107,25 @@
 
 .player-wrapper {
   display: flex;
-  justify-content: center;
+
+  align-items: flex-start;
+  height: 100vh;
+  flex-direction: column;
+  position: fixed;
+  right: 0;
+
+  max-height: 1080px;
+  overflow-y: scroll;
+}
+
+.scroll-wrapper {
+  display: flex;
+  overflow-x: scroll;
+  position: fixed;
+  left: 0;
+  justify-content: flex-start;
   align-items: center;
+  width: 100%;
 }
 
 .card-bottom {
@@ -137,4 +151,12 @@
   @media (max-width: 960px) {
     display: none;
   }
+}
+
+.hidden {
+  overflow: hidden;
+}
+
+.player-spacing {
+  margin: 0px 20px;
 }
