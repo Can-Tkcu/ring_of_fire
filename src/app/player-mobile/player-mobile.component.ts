@@ -6,8 +6,6 @@ import { Component, Input } from '@angular/core';
   styleUrls: ['./player-mobile.component.scss']
 })
 export class PlayerMobileComponent {
-  
   @Input() name: string = '';
   @Input() playerActive: boolean = false;
-
 }

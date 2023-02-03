@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { collection, collectionData, CollectionReference, doc, docData, DocumentData, Firestore, updateDoc } from '@angular/fire/firestore';
+import { addDoc, collection, collectionData, CollectionReference, doc, docData, DocumentData, Firestore, updateDoc } from '@angular/fire/firestore';
+import { Router } from '@angular/router';
 import { Game } from 'src/models/game';
 
 @Injectable({
@@ -10,7 +11,7 @@ export class BackendServiceFB {
   public gameID: string;
   public gameCollection: CollectionReference<DocumentData>;
   
-  constructor(private readonly firestore: Firestore) {
+  constructor(private readonly firestore: Firestore, public router: Router) {
     this.gameCollection = collection(this.firestore, 'game');
    }
 
@@ -45,6 +46,31 @@ export class BackendServiceFB {
   }
 
 
+  /**
+   * Method to add data to the database
+   * @description
+   * 
+   */
+  addData(game: any) {
+    addDoc(this.gameCollection, game.toJson())
+      .then((gameData: any) => {
+        console.log('New Game created successfully');
+        this.router.navigateByUrl('game/' + gameData.id);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
+
+  /**
+  @function
+  @description
+  The method 'updateGame' updates the game document in Firestore.
+  It retrieves a reference to the game document using the 'gameID' property and the 'doc' helper function.
+  Then it updates the game document using the 'updateDoc' helper function and the game data in JSON format obtained from calling the 'toJson' method.
+  @returns {firebase.firestore.WriteResult} - The result of the update operation.
+  */
   updateGame() {
     const gameDocumentReference = doc(this.firestore, 'game', this.gameID);
     return updateDoc(gameDocumentReference, this.game.toJson());

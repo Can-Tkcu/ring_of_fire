@@ -49,12 +49,20 @@ export class GameInfoComponent implements OnChanges {
     },
   ];
 
+  
   title: string = '';
   description: string = '';
-  
-
   @Input() card: string = '';
 
+
+  /**
+  @function
+  @description
+  The method ngOnChanges is a lifecycle hook of Angular components. It is called whenever the component's inputs change.
+  In this method, the component updates the title and description properties based on the input value of the 'card' property.
+  The card number is extracted from the 'card' property and used to retrieve the corresponding title and description from the 'cardAction' array.
+  @returns {void}
+*/
   ngOnChanges(): void {
     if (this.card) {
       let cardNumber = +this.card.split('_')[1];

@@ -24,6 +24,10 @@ export class Game {
     return array;
   }
 
+  /**
+   * 
+   * @returns {string} JSON 
+   */
   public toJson() {
     return {
         players: this.players,
